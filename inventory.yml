@@ -1,0 +1,7 @@
+all:
+  hosts:
+    edu1:
+      ansible_host: <IP_адрес_Proxmox>
+      ansible_user: <имя_пользователя>
+      ansible_password: <пароль>
+      ansible_become: true
