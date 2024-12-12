@@ -1,0 +1,4 @@
+---
+delete_wg: false
+delete_vms: false
+jatoba_vmid_wg: 19999

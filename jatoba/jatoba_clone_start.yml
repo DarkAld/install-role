@@ -1,0 +1,63 @@
+---
+- name: Clone and Start VM for jatoba
+  hosts: Learn1
+  gather_facts: no
+
+  vars:
+    delete_vms: false  # Установите в true, чтобы включить удаление ВМ
+
+  tasks:
+    - name: Bulk Clone VM
+      proxmox_kvm:
+        api_host: "{{ ansible_host }}"
+        api_user: "{{ api_user }}"
+        api_password: "{{ ansible_password }}"
+        node: education1
+        clone: jatoba-base-template
+        vmid: 14000
+        newid: "{{ item }}"
+        full: yes
+        name: "jatoba-user-{{ item | int - 14001 }}"
+        storage: Win1_SSD_edu1
+        format: qcow2
+        timeout: 300
+      loop: "{{ range(14002, 14042) | list }}"
+      register: clone_result
+      when: clone_result is not defined or clone_result.failed is not defined or not clone_result.failed
+      retries: 3  # Повтор в случае ошибки
+      delay: 30   # Задержка между попытками
+      
+    - name: Collect VM IDs for Start
+      set_fact:
+        vm_ids_to_start: "{{ vm_ids_to_start | default([]) + [item.newid | default(item.item)] }}"
+      with_items: "{{ clone_result.results | default([]) }}"
+      when: item.failed is not defined or not item.failed
+
+    - name: Start all cloned VMs
+      proxmox_kvm:
+        api_host: "{{ ansible_host }}"
+        api_user: "{{ api_user }}"
+        api_password: "{{ ansible_password }}"
+        vmid: "{{ item }}"
+        state: started
+      loop: "{{ vm_ids_to_start }}"
+
+    - name: Stop all cloned VMs
+      proxmox_kvm:
+        api_host: "{{ ansible_host }}"
+        api_user: "{{ api_user }}"
+        api_password: "{{ ansible_password }}"
+        vmid: "{{ item }}"
+        state: stopped
+      loop: "{{ vm_ids_to_start }}"
+      when: delete_vms
+
+    - name: Remove all cloned VMs
+      proxmox_kvm:
+        api_host: "{{ ansible_host }}"
+        api_user: "{{ api_user }}"
+        api_password: "{{ ansible_password }}"
+        vmid: "{{ item }}"
+        state: absent
+      loop: "{{ vm_ids_to_start }}"
+      when: delete_vms

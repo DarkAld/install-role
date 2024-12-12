@@ -1,7 +1,16 @@
 all:
   hosts:
-    edu1:
-      ansible_host: <IP_адрес_Proxmox>
-      ansible_user: <имя_пользователя>
-      ansible_password: <пароль>
+    Learn1:
+      ansible_host: 87.228.10.171
+      ansible_port: 50091
+      ansible_user: root
+      api_user: root@pam
+      ansible_password: "&3Q^v%T$q18gV8IvfC%n"
       ansible_become: true
+    # Learn2:
+    #   ansible_host: 87.228.10.172
+    #   ansible_port: 50421
+    #   ansible_user: root
+    #   api_user: root@pam
+    #   ansible_password: "&3Q^v%T$q18gV8IvfC%n"
+    #   ansible_become: true

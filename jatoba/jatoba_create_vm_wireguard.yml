@@ -1,0 +1,49 @@
+---
+- name: Clone and Start VM for jatoba
+  hosts: Learn1
+  gather_facts: no
+
+  vars_files:
+    - /home/user/Ansible/install-role/vars/jatoba_vars
+
+  tasks:
+    - name: Clone VM wireguard
+      proxmox_kvm:
+        api_host: "{{ ansible_host }}"
+        api_user: "{{ api_user }}"
+        api_password: "{{ ansible_password }}"
+        clone: ubuntu-wg-base-template
+        vmid: 121
+        newid: "{{ jatoba_vmid_wg }}"
+        full: yes
+        name: "jatoba-wireguard-test"
+        node: education1
+        storage: Linux_SSD_edu1
+        format: qcow2
+        timeout: 300
+
+    - name: Start wireguard
+      proxmox_kvm:
+        api_host: "{{ ansible_host }}"
+        api_user: "{{ api_user }}"
+        api_password: "{{ ansible_password }}"
+        vmid: "{{ jatoba_vmid_wg }}"
+        state: started
+
+    - name: Stop wireguard
+      proxmox_kvm:
+        api_host: "{{ ansible_host }}"
+        api_user: "{{ api_user }}"
+        api_password: "{{ ansible_password }}"
+        vmid: "{{ jatoba_vmid_wg }}"
+        state: stopped
+      when: delete_wg
+
+    - name: Remove wireguard
+      proxmox_kvm:
+        api_host: "{{ ansible_host }}"
+        api_user: "{{ api_user }}"
+        api_password: "{{ ansible_password }}"
+        vmid: "{{ jatoba_vmid_wg }}"
+        state: absent
+      when: delete_wg

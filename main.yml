@@ -1,0 +1,14 @@
+---
+- name: Run jatoba_create_vm playbook
+  import_playbook: jatoba/jatoba_clone_vm.yml
+
+- name: Run jatoba_clone_start playbook
+  import_playbook: jatoba/jatoba_create_vm_wireguard.yml
+
+- name: Run jatoba_setting_vm playbook
+  import_playbook: jatoba/jatoba_setting_vm_wireguard.yml
+
+- name: Run jatoba_create_user playbook
+  import_playbook: jatoba/jatoba_create_user_playbook.yml
+
+#ansible-playbook main.yml 
